@@ -1,4 +1,4 @@
-tune_dir=${HOME}/Draco-liter/src/tune/
+tune_dir=${HOME}/DETOX/src/tune/
 max_tuning_step=200
 method=bulyan
 mkdir ${tune_dir}

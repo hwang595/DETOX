@@ -1,10 +1,10 @@
-KEY_PEM_DIR=/home/hwang/My_Code/AWS/HongyiScript5.pem
-KEY_PEM_NAME=HongyiScript5.pem
+KEY_PEM_DIR=/home/XXXXX/XXXXX.pem
+KEY_PEM_NAME=XXXXX.pem
 PUB_IP_ADDR="$1"
 echo "Public address of master node: ${PUB_IP_ADDR}"
 
 ssh -o "StrictHostKeyChecking no" ubuntu@${PUB_IP_ADDR}
 scp -i ${KEY_PEM_DIR} ${KEY_PEM_DIR} ubuntu@${PUB_IP_ADDR}:~/.ssh
 scp -i ${KEY_PEM_DIR} hosts hosts_address config ubuntu@${PUB_IP_ADDR}:~/
-scp -i ${KEY_PEM_DIR} -r /home/hwang/My_Code/Draco-liter ubuntu@${PUB_IP_ADDR}:~/
-ssh -i ${KEY_PEM_DIR} ubuntu@${PUB_IP_ADDR} 'sudo apt-get update; cp Draco-liter/tools/remote_script.sh ~/'
+scp -i ${KEY_PEM_DIR} -r /home/hwang/My_Code/DETOX ubuntu@${PUB_IP_ADDR}:~/
+ssh -i ${KEY_PEM_DIR} ubuntu@${PUB_IP_ADDR} 'sudo apt-get update; cp DETOX/tools/remote_script.sh ~/'

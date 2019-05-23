@@ -137,7 +137,6 @@ class SyncReplicasMaster_NN(NN_Trainer):
                     enough_gradients_received = enough_gradients_received and (j >= self._num_grad_to_collect)
 
             ################### "A Little is enough" attack simulation on the PS"#########################
-            # TODO (hongyi & shashank): try to see how to make this practical 
             if self._lis_simulation == "simulate":
                 self._LIE_attack_simulation()
             else:
@@ -205,7 +204,6 @@ class SyncReplicasMaster_NN(NN_Trainer):
             self._robust_aggr_buffer = np.zeros((self.num_workers, self._model_param_counter), dtype=np.float32)
 
     def _model_update(self):
-        # we implement a simple lr scheduler here. TODO (hwang): see if there exists a better method to fit into PyTorch lr_scheduler
         if self.cur_step % self.lr_step == 0:
             self.optimizer.lr_update(updated_lr=(self.lr * self.gamma ** (self.cur_step // self.lr_step)))
         self.optimizer.step(grads=self._grad_aggregate_buffer, mode=self._update_mode)
@@ -229,7 +227,6 @@ class SyncReplicasMaster_NN(NN_Trainer):
                     request_workers.append(req)
 
             request_layers.append(request_workers)
-        # TODO(hwang): check to see if these `wait` calls are necessary here
         for req_l in request_layers:
             for req_worker in req_l:
                 req_worker.wait()

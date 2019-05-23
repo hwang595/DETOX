@@ -152,7 +152,6 @@ class DracoLiteMaster(SyncReplicasMaster_NN):
 
 
             ################### "A Little is enough" attack simulation on the PS"#########################
-            # TODO (hongyi & shashank): try to see how to make this practical 
             if self._lis_simulation == "simulate":
                 self._LIE_attack_simulation()
             else:
@@ -194,7 +193,6 @@ class DracoLiteMaster(SyncReplicasMaster_NN):
                 self._coded_grads_buffer[k][v.index(source)][layer_idx] = gradient
 
     def _model_update(self):
-        # we implement a simple lr scheduler here. TODO (hwang): see if there exists a better method to fit into PyTorch lr_scheduler
         if self.cur_step % self.lr_step == 0:
             self.optimizer.lr_update(updated_lr=(self.lr * self.gamma ** (self.cur_step // self.lr_step)))
         self.optimizer.step(grads=self._grad_aggregate_buffer, mode="draco_lite")

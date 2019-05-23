@@ -1,4 +1,4 @@
-KEY_PEM_NAME=${HOME}/.ssh/HongyiScript.pem
+KEY_PEM_NAME=${HOME}/.ssh/XXXXXXXXXX.pem
 export DEEPLEARNING_WORKERS_COUNT=`wc -l < hosts`
 
 for i in $(seq 2 $DEEPLEARNING_WORKERS_COUNT);
