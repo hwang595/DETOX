@@ -134,3 +134,14 @@ Those are potential directions we are actively working on, stay tuned!
 * Provide CUDA support.
 * Explore the compatibility with federated learning.
 * Explore the Byzantine-resilience in decentralized setups.
+
+## Citation
+```
+@inproceedings{rajput2019detox,
+  title={DETOX: A redundancy-based framework for faster and more robust gradient aggregation},
+  author={Rajput, Shashank and Wang, Hongyi and Charles, Zachary and Papailiopoulos, Dimitris},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={10320--10330},
+  year={2019}
+}
+```
