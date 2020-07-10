@@ -240,8 +240,8 @@ class DracoLiteMaster(SyncReplicasMaster_NN):
             num_buckets = grad_transformer.shape[0]
 
             # aggregation stage
-            grad_mean = np.mean(grad_transformer, axis=1)
-            aggr_res = np.median(grad_mean, axis=0)
+            grad_mean = np.mean(grad_transformer, axis=0)
+            aggr_res = np.median(grad_mean, axis=1)
         elif self._update_mode == "bulyan":
             def __bulyan(grad_list, nb_in_score, bulyan_inds):
                 '''
