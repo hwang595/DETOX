@@ -93,6 +93,7 @@ class DistributedEvaluator(NN_Trainer):
                 self._evaluate_model(validation_loader)
                 self._next_step_to_fetch += self._eval_freq
             else:
+                # TODO(hwang): sleep appropriate period of time make sure to tune this parameter
                 time.sleep(10)
 
     def _evaluate_model(self, test_loader):

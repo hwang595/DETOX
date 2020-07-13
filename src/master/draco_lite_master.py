@@ -152,6 +152,7 @@ class DracoLiteMaster(SyncReplicasMaster_NN):
 
 
             ################### "A Little is enough" attack simulation on the PS"#########################
+            # TODO (hongyi & shashank): try to see how to make this practical 
             if self._lis_simulation == "simulate":
                 self._LIE_attack_simulation()
             else:
@@ -193,6 +194,7 @@ class DracoLiteMaster(SyncReplicasMaster_NN):
                 self._coded_grads_buffer[k][v.index(source)][layer_idx] = gradient
 
     def _model_update(self):
+        # we implement a simple lr scheduler here. TODO (hwang): see if there exists a better method to fit into PyTorch lr_scheduler
         if self.cur_step % self.lr_step == 0:
             self.optimizer.lr_update(updated_lr=(self.lr * self.gamma ** (self.cur_step // self.lr_step)))
         self.optimizer.step(grads=self._grad_aggregate_buffer, mode="draco_lite")
@@ -242,6 +244,22 @@ class DracoLiteMaster(SyncReplicasMaster_NN):
             # aggregation stage
             grad_mean = np.mean(grad_transformer, axis=1)
             aggr_res = np.median(grad_mean, axis=0)
+
+        elif self._update_mode == "sign-sgd":
+            #logger.info("Draco-lite aggregation buffer shape: {}".format(self._draco_lite_aggregation_buffer.shape))
+            indices = np.arange(self._sub_grad_size)
+            np.random.shuffle(indices)
+            random_indicies = np.array(np.split(indices, self._bucket_size))
+
+            #logger.info("random indicies: {}".format(random_indicies))
+            grad_transformer = self._draco_lite_aggregation_buffer[random_indicies, :]
+
+            # aggregation stage
+            # the first maj vote stage
+            tempt_aggr_res = np.sign(np.sum(grad_transformer, axis=1))
+            # the second maj vote stage
+            aggr_res = np.sign(np.sum(tempt_aggr_res, axis=0))
+
         elif self._update_mode == "bulyan":
             def __bulyan(grad_list, nb_in_score, bulyan_inds):
                 '''

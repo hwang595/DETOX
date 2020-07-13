@@ -37,6 +37,7 @@ class DracoLiteWorker(DistributedWorker):
         self._group_size = len(self._group_list[0])
         self._compress_grad = kwargs['compress_grad']
         self._device = kwargs['device']
+        self._update_mode = kwargs['update_mode']
         # this one is going to be used to avoid fetch the weights for multiple times
         self._layer_cur_step = []
 
@@ -152,12 +153,14 @@ class DracoLiteWorker(DistributedWorker):
 
     def _send_grads(self, grads):
         req_send_check = []
-        #for i, grad in enumerate(reversed(grads)):
         for i, grad in enumerate(grads):
             if len(req_send_check) != 0:
                 req_send_check[-1].wait()
-            if self._lis_simulation == "simulate":
+            if self._lis_simulation=="simulate":
                 if self._compress_grad=='compress':
+                    if self._update_mode=="sign-sgd":
+                        # signSGD worker side
+                        grad = np.sign(grad).astype(np.int8)
                     _compressed_grad = compress(grad)
                     req_isend = self.comm.isend(_compressed_grad, dest=0, tag=88+i)
                 else:
@@ -166,6 +169,9 @@ class DracoLiteWorker(DistributedWorker):
             else:
                 if self.rank in self._fail_workers[self.cur_step]:
                     simulation_grad = err_simulation(grad, self._err_mode)
+                    if self._update_mode=="sign-sgd":
+                        # signSGD worker side
+                        simulation_grad = np.sign(simulation_grad).astype(np.int8)
                     if self._compress_grad=='compress':
                         _compressed_grad = compress(simulation_grad)
                         req_isend = self.comm.isend(_compressed_grad, dest=0, tag=88+i)
@@ -174,12 +180,45 @@ class DracoLiteWorker(DistributedWorker):
                     req_send_check.append(req_isend)
                 else:
                     if self._compress_grad=='compress':
+                        if self._update_mode=="sign-sgd":
+                            # signSGD worker side
+                            grad = np.sign(grad).astype(np.int8)
                         _compressed_grad = compress(grad)
                         req_isend = self.comm.isend(_compressed_grad, dest=0, tag=88+i)
                     else:
                         req_isend = self.comm.Isend([grad, MPI.DOUBLE], dest=0, tag=88+i)
                     req_send_check.append(req_isend)
         req_send_check[-1].wait()
+
+    # def _send_grads(self, grads):
+    #     req_send_check = []
+    #     for i, grad in enumerate(grads):
+    #         if len(req_send_check) != 0:
+    #             req_send_check[-1].wait()
+    #         if self._lis_simulation == "simulate":
+    #             if self._compress_grad=='compress':
+    #                 _compressed_grad = compress(grad)
+    #                 req_isend = self.comm.isend(_compressed_grad, dest=0, tag=88+i)
+    #             else:
+    #                 req_isend = self.comm.Isend([grad, MPI.DOUBLE], dest=0, tag=88+i)
+    #             req_send_check.append(req_isend)
+    #         else:
+    #             if self.rank in self._fail_workers[self.cur_step]:
+    #                 simulation_grad = err_simulation(grad, self._err_mode)
+    #                 if self._compress_grad=='compress':
+    #                     _compressed_grad = compress(simulation_grad)
+    #                     req_isend = self.comm.isend(_compressed_grad, dest=0, tag=88+i)
+    #                 else:
+    #                     req_isend = self.comm.Isend([simulation_grad, MPI.DOUBLE], dest=0, tag=88+i)
+    #                 req_send_check.append(req_isend)
+    #             else:
+    #                 if self._compress_grad=='compress':
+    #                     _compressed_grad = compress(grad)
+    #                     req_isend = self.comm.isend(_compressed_grad, dest=0, tag=88+i)
+    #                 else:
+    #                     req_isend = self.comm.Isend([grad, MPI.DOUBLE], dest=0, tag=88+i)
+    #                 req_send_check.append(req_isend)
+    #     req_send_check[-1].wait()
 
 
     '''

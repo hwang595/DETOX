@@ -273,6 +273,7 @@ def prepare(args, rank, world_size):
                     'device':device
                     }
         kwargs_worker = {
+                    'update_mode':args.mode,  # for implementing signSGD
                     'batch_size':args.batch_size, 
                     'learning_rate':args.lr, 
                     'max_epochs':args.epochs, 

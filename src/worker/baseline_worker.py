@@ -224,7 +224,6 @@ class DistributedWorker(NN_Trainer):
 
     def _send_grads(self, grads):
         req_send_check = []
-        #for i, grad in enumerate(reversed(grads)):
         for i, grad in enumerate(grads):
             if len(req_send_check) != 0:
                 req_send_check[-1].wait()
